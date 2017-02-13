@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_htmlchecker" default="compile.module.htmlchecker">
+  <dirname property="module.htmlchecker.basedir" file="${ant.file.module_htmlchecker}"/>
+  
+  <property name="module.jdk.home.htmlchecker" value="${jdk.home.1.8}"/>
+  <property name="module.jdk.bin.htmlchecker" value="${jdk.bin.1.8}"/>
+  <property name="module.jdk.classpath.htmlchecker" value="jdk.classpath.1.8"/>
+  
+  <property name="compiler.args.htmlchecker" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="htmlchecker.output.dir" value="${module.htmlchecker.basedir}/bin"/>
+  <property name="htmlchecker.testoutput.dir" value="${module.htmlchecker.basedir}/bin"/>
+  
+  <path id="htmlchecker.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="htmlchecker.module.production.classpath">
+    <path refid="${module.jdk.classpath.htmlchecker}"/>
+  </path>
+  
+  <path id="htmlchecker.runtime.production.module.classpath">
+    <pathelement location="${htmlchecker.output.dir}"/>
+  </path>
+  
+  <path id="htmlchecker.module.classpath">
+    <pathelement location="${htmlchecker.output.dir}"/>
+    <path refid="${module.jdk.classpath.htmlchecker}"/>
+  </path>
+  
+  <path id="htmlchecker.runtime.module.classpath">
+    <pathelement location="${htmlchecker.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.htmlchecker">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.htmlchecker">
+    <patternset refid="excluded.from.module.htmlchecker"/>
+  </patternset>
+  
+  <path id="htmlchecker.module.sourcepath">
+    <dirset dir="${module.htmlchecker.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.htmlchecker" depends="compile.module.htmlchecker.production,compile.module.htmlchecker.tests" description="Compile module HtmlChecker"/>
+  
+  <target name="compile.module.htmlchecker.production" depends="register.custom.compilers" description="Compile module HtmlChecker; production classes">
+    <mkdir dir="${htmlchecker.output.dir}"/>
+    <javac2 destdir="${htmlchecker.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.htmlchecker}/javac">
+      <compilerarg line="${compiler.args.htmlchecker}"/>
+      <bootclasspath refid="htmlchecker.module.bootclasspath"/>
+      <classpath refid="htmlchecker.module.production.classpath"/>
+      <src refid="htmlchecker.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.htmlchecker"/>
+    </javac2>
+    
+    <copy todir="${htmlchecker.output.dir}">
+      <fileset dir="${module.htmlchecker.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.htmlchecker.tests" depends="register.custom.compilers,compile.module.htmlchecker.production" description="compile module HtmlChecker; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.htmlchecker" description="cleanup module">
+    <delete dir="${htmlchecker.output.dir}"/>
+    <delete dir="${htmlchecker.testoutput.dir}"/>
+  </target>
+</project>
